@@ -1,38 +1,42 @@
-import { Observable, Observer } from 'rxjs';
+import { count, Observable, Observer } from 'rxjs';
 
 //const  obs$ = Observable.create()
 
 
 const observer: Observer<any> = {
-    next: value => console.log('siguiente [next]:', value),
-    error: error => console.warn('error [obs]:', error), 
-    complete: () => console.info('Completado [obs]')
+    next: value => console.log('next:', value),
+    error: error => console.warn('error:', error), 
+    complete: () => console.info('Completado')
 
 }
 
-const obs$ = new Observable<string>( subs => {
-    subs.next('Hola');
-    subs.next('Mundo');
 
-    subs.next('Hola');
-    subs.next('Mundo');
+const intervalo$ = new Observable<number>(subs => {
+    //Crear un contador
 
-    //Forzar un error
-    //const a = undefined;
-    //a.nombre = 'Fernando';
+    let count = 0
 
+    const interval = setInterval( () => {
+        count++;
+        subs.next(count);
+    
+    }, 2500);
 
-    subs.complete();
-});
+    return () => {
+        clearInterval(interval);
+        console.log('Intervalo completado');
+    }
+})
 
-obs$.subscribe(observer);
+const subscription1 =  intervalo$.subscribe( num => console.log('Num:', num));
+const subscription2 =  intervalo$.subscribe( num => console.log('Num:', num));
+const subscription3 =  intervalo$.subscribe( num => console.log('Num:', num));
 
-// 3 argumentos next, error, complete
-// obs$.subscribe(
-//     valor => console.log('next', valor),
-//     error => console.warn('error', error), 
-//     () => console.log('Completado')
-// );
+setTimeout(() =>{
+    subscription1.unsubscribe()
+    subscription2.unsubscribe()
+    subscription3.unsubscribe()
+}, 3000)
 
 
 
